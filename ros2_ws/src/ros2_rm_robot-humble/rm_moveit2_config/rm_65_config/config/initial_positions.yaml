@@ -1,0 +1,13 @@
+# Default initial positions for rm_65_description's ros2_control fake system
+
+initial_positions:
+  joint1: 0.5
+  joint2: -0.5
+  joint3: -1.0
+  joint4: 0
+  joint5: -1.2
+  joint6: 1.5708
+  robotiq_85_left_knuckle_joint: 0
+  robotiq_85_right_knuckle_joint: 0
+
+  

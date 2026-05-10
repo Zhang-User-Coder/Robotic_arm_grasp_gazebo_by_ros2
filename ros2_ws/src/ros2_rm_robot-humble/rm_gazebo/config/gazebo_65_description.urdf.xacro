@@ -1,0 +1,247 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rm_65_description">
+
+    <!-- Used for fixing robot to Gazebo 'base_link' 将机械手的基座固定在世界坐标上-->
+    <link name="world"/>
+
+    <link name="robot_base">
+        <visual>
+            <geometry>
+                <box size="0.01 0.01 0.01"/>
+            </geometry>
+            <material name="invisible">
+                <color rgba="0 0 0 0"/>
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.01 0.01 0.01"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.0001"/>
+            <inertia ixx="0.0001" iyy="0.0001" izz="0.0001" ixy="0.0" ixz="0.0" iyz="-0.0" />
+        </inertial>
+    </link>
+
+    <joint name="fixed" type="fixed">
+        <parent link="world"/>
+        <child link="robot_base"/>
+        <origin xyz="0.0 0.0 1.02" rpy="0.0 0.0 0.0"/>
+    </joint>
+
+    <joint name="robot_base_to_arm_base" type="fixed">
+        <parent link="robot_base"/>
+        <child link="base_link"/>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    </joint>
+
+    <!-- Import claw_description urdf file -->
+    <xacro:include filename="$(find rm_description)/urdf/rm_65_gazebo.urdf" />
+
+
+    <!-- 对一些link进行gazebo的属性设置 -->
+    <gazebo reference="base_link">
+        <self_collide>false</self_collide>
+        <gravity>false</gravity>
+    </gazebo>
+    <gazebo reference="link1">
+        <material>Gazebo/Purple</material>
+        <self_collide>false</self_collide>
+        <gravity>false</gravity>
+    </gazebo>
+    <gazebo reference="link2">
+        <material>Gazebo/Red</material>
+        <gravity>false</gravity>
+    </gazebo>
+    <gazebo reference="link3">
+        <material>Gazebo/Blue</material>
+        <gravity>false</gravity>
+    </gazebo>
+    <gazebo reference="link4">
+        <material>Gazebo/Green</material>
+        <gravity>false</gravity>
+    </gazebo>
+    <gazebo reference="link5">
+        <material>Gazebo/Yellow</material>
+        <gravity>false</gravity>
+    </gazebo>
+    <gazebo reference="link6">
+        <material>Gazebo/Orange</material>
+        <gravity>false</gravity>
+    </gazebo>
+
+    <!-- 为夹爪添加gazebo属性 -->
+    <gazebo reference="robotiq_85_base_link">
+        <material>Gazebo/Grey</material>
+        <gravity>false</gravity>
+        <self_collide>false</self_collide>
+    </gazebo>
+    <gazebo reference="robotiq_85_left_knuckle_link">
+        <material>Gazebo/DarkGrey</material>
+        <gravity>false</gravity>
+        <self_collide>false</self_collide>
+    </gazebo>
+    <gazebo reference="robotiq_85_right_knuckle_link">
+        <material>Gazebo/DarkGrey</material>
+        <gravity>false</gravity>
+        <self_collide>false</self_collide>
+    </gazebo>
+    <gazebo reference="robotiq_85_left_finger_link">
+        <material>Gazebo/Grey</material>
+        <gravity>false</gravity>
+        <self_collide>false</self_collide>
+    </gazebo>
+    <gazebo reference="robotiq_85_right_finger_link">
+        <material>Gazebo/Grey</material>
+        <gravity>false</gravity>
+        <self_collide>false</self_collide>
+    </gazebo>
+    <gazebo reference="robotiq_85_left_finger_tip_link">
+        <material>Gazebo/Purple</material>
+        <gravity>false</gravity>
+        <self_collide>false</self_collide>
+    </gazebo>
+    <gazebo reference="robotiq_85_right_finger_tip_link">
+        <material>Gazebo/Purple</material>
+        <gravity>false</gravity>
+        <self_collide>false</self_collide>
+    </gazebo>
+
+    <gazebo reference="camera">
+        <sensor type="depth" name="camera_sensor">
+            <update_rate>30.0</update_rate>
+            <pose>0 0 0 -1.5708 0 0</pose>
+            <camera name="head">
+                <horizontal_fov>1.3962634</horizontal_fov>
+                <image>
+                    <width>640</width>
+                    <height>480</height>
+                    <format>R8G8B8</format>
+                </image>
+                <clip>
+                    <near>0.001</near>
+                    <far>300</far>
+                </clip>
+            </camera>
+            <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+                <baseline>0.2</baseline>
+                <alwaysOn>true</alwaysOn>
+                <updateRate>0.0</updateRate>
+                <cameraName>camera</cameraName>
+                <imageTopicName>color/image_raw</imageTopicName>
+                <cameraInfoTopicName>color/camera_info</cameraInfoTopicName>
+                <depthImageTopicName>depth/image_raw</depthImageTopicName>
+                <depthImageCameraInfoTopicName>depth/camera_info</depthImageCameraInfoTopicName>
+                <pointCloudTopicName>depth/points</pointCloudTopicName>
+                <frameName>camera</frameName>
+                <pointCloudCutoff>0.5</pointCloudCutoff>
+                <pointCloudCutoffMax>3.0</pointCloudCutoffMax>
+                <hackBaseline>0.07</hackBaseline>
+                <distortionK1>0.0</distortionK1>
+                <distortionK2>0.0</distortionK2>
+                <distortionK3>0.0</distortionK3>
+                <distortionT1>0.0</distortionT1>
+                <distortionT2>0.0</distortionT2>
+                <min_depth>0.001</min_depth>
+                <max_depth>10.0</max_depth>
+            </plugin>
+        </sensor>
+    </gazebo>
+
+    <!-- 声明ros2_control -->
+    <ros2_control name="GazeboSystem" type="system">
+        <hardware>
+            <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+            <param name="robot_sim_type">gazebo_ros2_control/GazeboSystem</param>
+        </hardware>
+        <joint name="joint1">
+            <command_interface name="position"/>
+            <state_interface name="position">
+                <param name="initial_value">-0.7</param>
+            </state_interface>
+            <state_interface name="velocity"/>
+        </joint>
+        <joint name="joint2">
+            <command_interface name="position"/>
+            <state_interface name="position">
+                <param name="initial_value">-0.5</param>
+            </state_interface>
+            <state_interface name="velocity"/>
+        </joint>
+        <joint name="joint3">
+            <command_interface name="position"/>
+            <state_interface name="position">
+                <param name="initial_value">-1.0</param>
+            </state_interface>
+            <state_interface name="velocity"/>
+        </joint>
+        <joint name="joint4">
+            <command_interface name="position"/>
+            <state_interface name="position">
+                <param name="initial_value">0</param>
+            </state_interface>
+            <state_interface name="velocity"/>
+        </joint>
+        <joint name="joint5">
+            <command_interface name="position"/>
+            <state_interface name="position">
+                <param name="initial_value">-1.2</param>
+            </state_interface>
+            <state_interface name="velocity"/>
+        </joint>
+        <joint name="joint6">
+            <command_interface name="position"/>
+            <state_interface name="position">
+                <param name="initial_value">1.5708</param>
+            </state_interface>
+            <state_interface name="velocity"/>
+        </joint>
+        <joint name="robotiq_85_left_knuckle_joint">
+            <command_interface name="position"/>
+            <state_interface name="position">
+                <param name="initial_value">0</param>
+            </state_interface>
+            <state_interface name="velocity"/>
+        </joint>
+
+        <joint name="robotiq_85_right_knuckle_joint">
+            <command_interface name="position"/>
+            <state_interface name="position">
+                <param name="initial_value">0</param>
+            </state_interface>
+            <state_interface name="velocity"/>
+        </joint>
+
+    </ros2_control>
+
+    <!-- 加载ros2_control插件 -->
+    <gazebo>
+        <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+            <parameters>/home/zws/arm/ros2_ws/src/ros2_rm_robot-humble/rm_moveit2_config/rm_65_config/config/ros2_controllers.yaml</parameters>
+            <robot_param>robot_description</robot_param>
+            <robot_param_node>robot_state_publisher</robot_param_node>
+        </plugin>
+    </gazebo>
+
+    <gazebo>
+        <plugin name="gazebo_grasp_fix" filename="libgazebo_grasp_fix.so"> 
+        <arm>
+            <arm_name>rm_65_arm</arm_name>
+            <palm_link>Link6</palm_link>
+            <gripper_link>robotiq_85_left_knuckle_link</gripper_link>
+            <gripper_link>robotiq_85_right_knuckle_link</gripper_link>
+        </arm>
+        
+        <forces_angle_tolerance>100</forces_angle_tolerance>
+        <update_rate>100</update_rate>
+        <grip_count_threshold>1</grip_count_threshold>
+        <max_grip_count>8</max_grip_count>
+        <release_tolerance>0.005</release_tolerance>
+        <disable_collisions_on_attach>false</disable_collisions_on_attach>
+        <contact_topic>__default_topic__</contact_topic>
+        </plugin>
+    </gazebo>
+
+</robot>
+

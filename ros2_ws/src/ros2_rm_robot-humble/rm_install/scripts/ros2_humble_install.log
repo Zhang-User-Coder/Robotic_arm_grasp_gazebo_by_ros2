@@ -1,0 +1,21 @@
+ROS2 Humble installation started!
+Installation logs will be saved to ./ros2_humble_install.log
+Installation errors will be saved to ./ros2_humble_install.err
+Current system architecture is: x86_64
+Current mirror is: https://mirrors.tuna.tsinghua.edu.cn/ubuntu/
+正在读取软件包列表...
+正在分析软件包的依赖关系树...
+正在读取状态信息...
+curl 已经是最新版 (7.81.0-1ubuntu1.20)。
+下列软件包是自动安装的并且现在不需要了：
+  ibus-data ibus-gtk4 python3-ibus-1.0
+使用'sudo apt autoremove'来卸载它(它们)。
+升级了 0 个软件包，新安装了 0 个软件包，要卸载 0 个软件包，有 2 个软件包未被升级。
+正在读取软件包列表...
+正在分析软件包的依赖关系树...
+正在读取状态信息...
+software-properties-common 已经是最新版 (0.99.22.9)。
+下列软件包是自动安装的并且现在不需要了：
+  ibus-data ibus-gtk4 python3-ibus-1.0
+使用'sudo apt autoremove'来卸载它(它们)。
+升级了 0 个软件包，新安装了 0 个软件包，要卸载 0 个软件包，有 2 个软件包未被升级。

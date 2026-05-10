@@ -1,0 +1,31 @@
+这里仿真用的文件，基本都和睿尔曼rm_65系列机械臂有关（注意是rm_65）
+
+启动仿真抓取：
+1.打开四个终端
+2.四个终端都cd arm/ros2_ws
+2.在其中一个终端colon build 一次
+3.四个终端都source install/setup.bash一次
+4.ros2 launch rm_gazebo gazebo_65_demo.launch.py   该文件位于ros2_ws/src/ros2_rm_robot-humble/rm_gazebo
+5.ros2 launch rm_65_config custom_moveit.launch.py 该文件位于ros2_ws/src/ros2_rm_robot-humble/rm_moveit2_config/rm_65_config
+6.ros2 run yolo_service yolo_grasp_planner	   该文件位于ros2_ws/src/ros2_rm_robot-humble/yolo_service
+7.ros2 run yolo_service auto_grasp_fsm		   该文件位于ros2_ws/src/ros2_rm_robot-humble/yolo_service
+
+在ros2_ws/src/ros2_rm_robot-humble中，以gazebo名字开头的三个文件夹的文件，建议别动，这是设置抓取的插件。
+
+除了刚刚说的几个python脚本，如果需要继续改善抓取情况，可以重点看看以下这些内容:
+gazebo的模型文件: ros2_ws/src/ros2_rm_robot-humble/rm_description/urdf/rm_65_gazebo.urdf
+gazebo的世界文件: ros2_ws/src/ros2_rm_robot-humble/rm_gazebo/world/sim_env.world
+gazebo的模型控制配置文件: arm/ros2_ws/src/ros2_rm_robot-humble/rm_gazebo/config/gazebo_65_description.urdf.xacro，一定要注意，把这个文件里的控制器参数文件(yaml)的路径改成自己的路径！
+
+在我原先的仿真中，小正方体容易被机械臂夹爪误碰，然后乱动起来。
+你可以在世界文件中，修改小正方体的质量，惯性和摩擦等参数，修改桌面的摩擦参数，
+或者修改小正方体的分布，也可以修改auto_grasp_fsm.py，去改善这一情况。
+
+yolo_service的yolo_models的文件和yolo_service的其他脚本文件(auto_move_grasp是失败品)
+arm/ros2_ws/src/ros2_rm_robot-humble/rm_moveit2_config/rm_65_config/config里面的moveit和控制器配置文件
+
+在auto_grasp_fsm.py中，我设置了检查小正方体放置区的逻辑，检查是否搬运成功，这里可以用到力传感器，去检测是否夹住了，
+我这里是因为太懒了，不太想做这个，想快点去做真机部分，所以没用力传感器，写了这种麻烦耗时的逻辑。
+可能还有其他我忘说的文件，请自行探索修改。
+
+rm_python的文件是真机的调试文件，如果需要，需要先建立好通信，启动rm_driver的相关脚本，再启动rm_python里的文件

@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- 夹爪参数定义 -->
+  <xacro:property name="gripper_mass" value="0.1" />
+  <xacro:property name="gripper_length" value="0.15" />
+  <xacro:property name="gripper_width" value="0.08" />
+  <xacro:property name="gripper_height" value="0.05" />
+  
+  <xacro:property name="finger_mass" value="0.02" />
+  <xacro:property name="finger_length" value="0.08" />
+  <xacro:property name="finger_width" value="0.02" />
+  <xacro:property name="finger_height" value="0.03" />
+  
+  <xacro:property name="joint_limit_lower" value="-0.5" />
+  <xacro:property name="joint_limit_upper" value="0.5" />
+  <xacro:property name="joint_damping" value="0.1" />
+
+  <!-- 夹爪基座 -->
+  <link name="gripper_base">
+    <visual>
+      <geometry>
+        <box size="${gripper_length} ${gripper_width} ${gripper_height}"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${gripper_length} ${gripper_width} ${gripper_height}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="${gripper_mass}"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+    </inertial>
+  </link>
+
+  <!-- 左爪 -->
+  <link name="left_finger">
+    <visual>
+      <geometry>
+        <box size="${finger_length} ${finger_width} ${finger_height}"/>
+      </geometry>
+      <material name="red">
+        <color rgba="1 0 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${finger_length} ${finger_width} ${finger_height}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="${finger_mass}"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+    </inertial>
+  </link>
+
+  <!-- 右爪 -->
+  <link name="right_finger">
+    <visual>
+      <geometry>
+        <box size="${finger_length} ${finger_width} ${finger_height}"/>
+      </geometry>
+      <material name="red">
+        <color rgba="1 0 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${finger_length} ${finger_width} ${finger_height}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="${finger_mass}"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+    </inertial>
+  </link>
+
+  <!-- 左爪关节 -->
+  <joint name="left_finger_joint" type="prismatic">
+    <parent link="gripper_base"/>
+    <child link="left_finger"/>
+    <origin xyz="0 ${gripper_width/2 + finger_width/2} 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="${joint_limit_lower}" upper="${joint_limit_upper}" effort="10.0" velocity="0.5"/>
+    <dynamics damping="${joint_damping}"/>
+  </joint>
+
+  <!-- 右爪关节 -->
+  <joint name="right_finger_joint" type="prismatic">
+    <parent link="gripper_base"/>
+    <child link="right_finger"/>
+    <origin xyz="0 -${gripper_width/2 + finger_width/2} 0" rpy="0 0 0"/>
+    <axis xyz="0 -1 0"/>
+    <limit lower="${joint_limit_lower}" upper="${joint_limit_upper}" effort="10.0" velocity="0.5"/>
+    <dynamics damping="${joint_damping}"/>
+  </joint>
+
+  <!-- 连接到机械臂的固定关节 -->
+  <joint name="gripper_to_arm" type="fixed">
+    <parent link="arm_link"/>  
+    <child link="gripper_base"/>
+    <origin xyz="0 0 ${gripper_height/2}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Gazebo传输 -->
+  <xacro:macro name="gazebo_transmission" params="joint_name">
+    <transmission name="${joint_name}_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${joint_name}">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${joint_name}_motor">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:macro>
+
+  <xacro:gazebo_transmission joint_name="left_finger_joint"/>
+  <xacro:gazebo_transmission joint_name="right_finger_joint"/>
+
+  <!-- Gazebo插件 -->
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/</robotNamespace>
+    </plugin>
+  </gazebo>
+
+  <!-- 夹爪Gazebo属性 -->
+  <gazebo reference="gripper_base">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <gazebo reference="left_finger">
+    <material>Gazebo/Red</material>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+  </gazebo>
+
+  <gazebo reference="right_finger">
+    <material>Gazebo/Red</material>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+  </gazebo>
+
+</robot>
